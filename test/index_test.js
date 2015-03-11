@@ -81,6 +81,47 @@ describe("StandardError", function() {
       stack[2].must.not.include("index_test.js")
     })
 
+    it("must extend stack when inner error is set", function() {
+      var stdErr = new StandardError()
+      var err = new ChildError('foo', stdErr)
+      err.must.have.own("stack")
+
+      var stack = err.stack.split(/\n\s*/)
+      stack[0].must.equal("ChildError: foo")
+      stack[1].must.include("index_test.js")
+      stack[2].must.not.include("index_test.js")
+      stack.must.contain('StandardError');
+      stack.must.contain('From previous event:')
+    })
+
+    it("must extend stack when object and inner error are set", function() {
+      var stdErr = new StandardError()
+      var err = new ChildError({ code: 500 }, stdErr)
+      err.must.have.own("code", 500)
+      err.must.have.own("stack")
+
+      var stack = err.stack.split(/\n\s*/)
+      stack[0].must.equal("ChildError")
+      stack[1].must.include("index_test.js")
+      stack[2].must.not.include("index_test.js")
+      stack.must.contain('StandardError');
+      stack.must.contain('From previous event:')
+    })
+
+    it("must extend stack when message, object and inner error are set", function() {
+      var stdErr = new StandardError()
+      var err = new ChildError('foo', { code: 500 }, stdErr)
+      err.must.have.own("code", 500)
+      err.must.have.own("stack")
+
+      var stack = err.stack.split(/\n\s*/)
+      stack[0].must.equal("ChildError: foo")
+      stack[1].must.include("index_test.js")
+      stack[2].must.not.include("index_test.js")
+      stack.must.contain('StandardError');
+      stack.must.contain('From previous event:')
+    })
+
     it("must set stack given name from object", function() {
       var err = new StandardError({name: "FallacyError"})
       err.must.have.own("stack")

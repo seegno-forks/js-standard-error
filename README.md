@@ -12,10 +12,10 @@ subclasses of `Error` for **custom error classes** with the correct `name` and
   standard `Error` behavior in tact.
 - Add **extra properties** to the error by just passing in an object.
 - StandardError.js sets the error's **stack trace correctly**, even if your
-  error class **subclasses/inherits** from StandardError.  
+  error class **subclasses/inherits** from StandardError.
   Just inheriting from `Error` with `Object.create` breaks the stack trace.
 - Every `StandardError` instance is also an instance of `Error`.
-- Serializes all expected properties when passing it to `JSON.stringify`.  
+- Serializes all expected properties when passing it to `JSON.stringify`.
   Did you know that the default `Error` object serializes to an empty object
   (`{}`)?
 - Works both in Node.js and browsers and sets the stack trace via
@@ -44,7 +44,7 @@ throw new StandardError("Not Found", {code: 404})
 ```
 
 The thrown instance of `StandardError` will then have both the `message` and the
-`code` property.  
+`code` property.
 It'll also also have a `name` property set to `"StandardError"`.
 
 You can skip the explicit `message` argument and give everything as an
@@ -82,6 +82,29 @@ HttpError.prototype = Object.create(StandardError.prototype, {
 example. First, that's the proper way to subclass in JavaScript and second,
 StandardError.js depends on that to know which functions to skip in the stack
 trace.
+
+### Including the previous error event
+StandardError.js allows you to pass a previous error and automatically appends
+its stack to the current error. This is great for throwing custom errors but
+still being able to understand the context from where the original error was
+thrown.
+
+```javascript
+fs.readFile(file, function (err, data) {
+  if (err) throw new StandardError({message: "File Not Found"}, err)
+  console.log(data)
+})
+
+//  if (err) throw new StandardError({message: "File Not Found"}, err)
+//                  ^
+// StandardError: File Not Found
+//     at file.js:4:18
+//     at fs.js:241:20
+//     at FSReqWrap.oncomplete (fs.js:72:15)
+// From previous event:
+// Error: ENOENT: no such file or directory, open '/eheh'
+//     at Error (native)
+```
 
 #### Name
 
@@ -121,7 +144,7 @@ For more convoluted language, see the `LICENSE` file.
 
 About
 -----
-**[Andri Möll](http://themoll.com)** typed this and the code.  
+**[Andri Möll](http://themoll.com)** typed this and the code.
 [Monday Calendar](https://mondayapp.com) supported the engineering work.
 
 If you find StandardError.js needs improving, please don't hesitate to type to
