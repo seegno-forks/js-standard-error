@@ -37,7 +37,7 @@ describe("StandardError", function() {
       new StandardError().must.have.own("name", "StandardError")
     })
 
-    it("must set name given emtpy object", function() {
+    it("must set name given empty object", function() {
       new StandardError({}).must.have.own("name", "StandardError")
     })
 
